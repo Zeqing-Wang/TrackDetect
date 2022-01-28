@@ -1,0 +1,45 @@
+<component name="InspectionProjectProfileManager">
+  <profile version="1.0">
+    <option name="myName" value="Project Default" />
+    <inspection_tool class="PyPackageRequirementsInspection" enabled="true" level="WARNING" enabled_by_default="true">
+      <option name="ignoredPackages">
+        <value>
+          <list size="2">
+            <item index="0" class="java.lang.String" itemvalue="Flask" />
+            <item index="1" class="java.lang.String" itemvalue="Pillow" />
+          </list>
+        </value>
+      </option>
+    </inspection_tool>
+    <inspection_tool class="PyUnresolvedReferencesInspection" enabled="true" level="WARNING" enabled_by_default="true">
+      <option name="ignoredIdentifiers">
+        <list>
+          <option value="main.group_comments" />
+          <option value="main.group_values" />
+          <option value="main.group_identifier_list" />
+          <option value="main.align_comments" />
+          <option value="main.group_assignment" />
+          <option value="main.group_aliased" />
+          <option value="main.group_as" />
+          <option value="main.group_comparison" />
+          <option value="main.group_operator" />
+          <option value="main.group_typed_literal" />
+          <option value="main.group_tzcasts" />
+          <option value="main.group_typecasts" />
+          <option value="main.group_order" />
+          <option value="main.group_identifier" />
+          <option value="main.group_arrays" />
+          <option value="main.group_period" />
+          <option value="main.group_where" />
+          <option value="main.group_functions" />
+          <option value="main.group_begin" />
+          <option value="main.group_for" />
+          <option value="main.group_brackets" />
+          <option value="main.group_parenthesis" />
+          <option value="main.group_case" />
+          <option value="main.group_if" />
+        </list>
+      </option>
+    </inspection_tool>
+  </profile>
+</component>
