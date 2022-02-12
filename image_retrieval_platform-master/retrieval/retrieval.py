@@ -166,22 +166,22 @@ if __name__ == '__main__':
     # 计时
     time_begin = time.time()
     # Prepare data.
-    data_loader = load_data(data_path='../static/image_database/',
-                            batch_size=16,
+    data_loader = load_data(data_path='../../yolov5-6.0/runs/detect/exp5/crops/person/',
+                            batch_size=256,
                             shuffle=False,
                             transform='default',
                             )
 
     # Prepare model.
     model = load_model(pretrained_model='./models/net_best.pth', use_gpu=True)
-
+    model = nn.DataParallel(model)
     # Extract database features.
     gallery_feature, image_paths = extract_feature(model=model, dataloaders=data_loader)
     # 提取特征用时计时
     time_extract = time.time()
     print('提取特征用时', time_extract-time_begin)
     # Query.
-    query_image = load_query_image('../static/upload_image/query.jpg')
+    query_image = load_query_image('query.jpg')
 
     # Extract query features.
     query_feature = extract_feature_query(model=model, img=query_image)

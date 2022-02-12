@@ -61,7 +61,7 @@ def run(weights=ROOT / 'yolov5s.pt',  # model.pt path(s)
         ):
     # 这里更改参数
     save_crop = True  # 裁剪照片
-    view_img = True # 显示过程
+    view_img = False # 显示过程
     classes = 0 # 只识别人
 
     source = str(source)
