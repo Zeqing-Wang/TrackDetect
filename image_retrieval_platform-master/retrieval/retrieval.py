@@ -9,10 +9,10 @@ from torch.autograd import Variable
 from torchvision import datasets, models, transforms
 import os
 import time
-
+import numpy as np
 from torch.utils.data import dataloader, Dataset
 from PIL import Image
-
+import get_features
 
 def get_file_list(file_path_list, sort=True):
     """
@@ -166,20 +166,22 @@ if __name__ == '__main__':
     # 计时
     time_begin = time.time()
     # Prepare data.
-    data_loader = load_data(data_path='../../yolov5-6.0/runs/detect/exp5/crops/person/',
-                            batch_size=256,
-                            shuffle=False,
-                            transform='default',
-                            )
+    # data_loader = load_data(data_path='../../yolov5-6.0/runs/detect/exp29/crops/person/',
+    #                         batch_size=256,
+    #                         shuffle=False,
+    #                         transform='default',
+    #                         )
 
     # Prepare model.
     model = load_model(pretrained_model='./models/net_best.pth', use_gpu=True)
     model = nn.DataParallel(model)
     # Extract database features.
-    gallery_feature, image_paths = extract_feature(model=model, dataloaders=data_loader)
+    # gallery_feature, image_paths = extract_feature(model=model, dataloaders=data_loader)
+    # print(np.array(gallery_feature).shape)
     # 提取特征用时计时
+    gallery_feature = get_features.get_feature()
     time_extract = time.time()
-    print('提取特征用时', time_extract-time_begin)
+    print('读取特征用时', time_extract-time_begin)
     # Query.
     query_image = load_query_image('query.jpg')
 
@@ -191,7 +193,8 @@ if __name__ == '__main__':
     # 查询用时
     time_query = time.time()
     print('查询用时', time_query-time_extract)
-    sorted_paths = [image_paths[i] for i in index]
-    for i in range(100):
-        print(sorted_paths[i]) # 输出top10
+    # 仅测试时间 下面先注释掉
+    # sorted_paths = [image_paths[i] for i in index]
+    # for i in range(100):
+    #     print(sorted_paths[i]) # 输出top10
 

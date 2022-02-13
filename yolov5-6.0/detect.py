@@ -16,7 +16,7 @@ import cv2
 import numpy as np
 import torch
 import torch.backends.cudnn as cudnn
-
+import featureprocess
 FILE = Path(__file__).resolve()
 ROOT = FILE.parents[0]  # YOLOv5 root directory
 if str(ROOT) not in sys.path:
@@ -140,17 +140,14 @@ def run(weights=ROOT / 'yolov5s.pt',  # model.pt path(s)
         model(torch.zeros(1, 3, *imgsz).to(device).type_as(next(model.parameters())))  # run once
     dt, seen = [0.0, 0.0, 0.0], 0
 
-    frame_time = 1 # 每秒检测几次
-    skip_time = 60/frame_time # 计算得到间隔时间
-    time_begin = time.time()
-    # 从这里开始计时 如果距离上次进入循环不足60s 则
+    # 修改 识别过程中提取特征
+    model_feature = featureprocess.load_model(pretrained_model='../image_retrieval_platform-master/retrieval/models/net_best.pth', use_gpu=True)
+    count = 0 # 用于记录当前
+    num = 1 # 每多少张送入网络提取一次
+    save = 5000 # 每多少张特征存储一次
+    features = [] # 存储特征列表
+    # 修改结束
     for path, img, im0s, vid_cap in dataset:
-        # 计时模块
-        # if time.time()-time_begin < skip_time:
-        #     continue
-        # else:
-        #     time_begin = time.time()
-        # 计时模块结束
         t1 = time_sync()
         if onnx:
             img = img.astype('float32')
@@ -244,8 +241,28 @@ def run(weights=ROOT / 'yolov5s.pt',  # model.pt path(s)
                         # annotator.box_label(xyxy, label, color=colors(c, True))
 
                         if save_crop:
-                            save_one_box(xyxy, imc, file=save_dir / 'crops' / names[c] / f'{p.stem}.jpg', BGR=True)
-
+                            # 这里增加了使用到save_one_box的返回值 即crop得到的照片
+                            crop = save_one_box(xyxy, imc, file=save_dir / 'crops' / names[c] / f'{p.stem}.jpg', BGR=True)
+                            # 提取
+                            feature = featureprocess.extract_feature(model = model_feature, img = crop)
+                            # 添加到数组中
+                            features.append(feature.cpu().numpy())
+                            # 计数
+                            count = count + 1
+                            # 判断是否该存储
+                            if count == save:
+                                # 清零
+                                count = 0
+                                # 保存 采用秒级时间戳
+                                featureprocess.save_features(features, str(int(time.time())))
+                                # 清空特征数组
+                                features = []
+                            # print(type(np.array(crop)))
+                            # print(np.array(crop).shape)
+                            # print(type(imc))
+                            # print(imc.shape)
+                            # cv2.imwrite('test.jpg', np.array(crop))
+                            # time.sleep(1000)
             # Print time (inference-only)
             print(f'{s}Done. ({t3 - t2:.3f}s)')
 
@@ -274,6 +291,8 @@ def run(weights=ROOT / 'yolov5s.pt',  # model.pt path(s)
                         vid_writer[i] = cv2.VideoWriter(save_path, cv2.VideoWriter_fourcc(*'mp4v'), fps, (w, h))
                     vid_writer[i].write(im0)
 
+    # 在结束后再次保存 因为很难整除
+    featureprocess.save_features(features, str(int(time.time())))
     # Print results
 #    t = tuple(x / seen * 1E3 for x in dt)  # speeds per image
 #    print(f'Speed: %.1fms pre-process, %.1fms inference, %.1fms NMS per image at shape {(1, 3, *imgsz)}' % t)
