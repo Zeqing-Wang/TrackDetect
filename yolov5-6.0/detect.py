@@ -31,7 +31,7 @@ from utils.general import apply_classifier, check_img_size, check_imshow, check_
 from utils.plots import Annotator, colors
 from utils.torch_utils import load_classifier, select_device, time_sync
 
-
+threaddevice = '0'
 @torch.no_grad()
 def run(weights=ROOT / 'yolov5s.pt',  # model.pt path(s)
         source=ROOT / 'data/images',  # file/dir/URL/glob, 0 for webcam
@@ -63,7 +63,8 @@ def run(weights=ROOT / 'yolov5s.pt',  # model.pt path(s)
     save_crop = True  # 裁剪照片
     view_img = False # 显示过程
     classes = 0 # 只识别人
-
+    # device = '3' # 多GPU
+    device = threaddevice # 多线程测试
     source = str(source)
     save_img = not nosave and not source.endswith('.txt')  # save inference images
     webcam = source.isnumeric() or source.endswith('.txt') or source.lower().startswith(
@@ -257,14 +258,8 @@ def run(weights=ROOT / 'yolov5s.pt',  # model.pt path(s)
                                 featureprocess.save_features(features, str(int(time.time())))
                                 # 清空特征数组
                                 features = []
-                            # print(type(np.array(crop)))
-                            # print(np.array(crop).shape)
-                            # print(type(imc))
-                            # print(imc.shape)
-                            # cv2.imwrite('test.jpg', np.array(crop))
-                            # time.sleep(1000)
             # Print time (inference-only)
-            print(f'{s}Done. ({t3 - t2:.3f}s)')
+            print(f'{s}Done. ({t3 - t2:.3f}s)','FPS:'+str(round(1/(t3 - t2))))
 
             # Stream results
             im0 = annotator.result()
@@ -340,7 +335,12 @@ def main(opt):
     check_requirements(exclude=('tensorboard', 'thop'))
     run(**vars(opt))
 
+def threadfunc(gpu):
+    threaddevice = gpu
+    opt = parse_opt()
+    main(opt)
 
 if __name__ == "__main__":
     opt = parse_opt()
     main(opt)
+

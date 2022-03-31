@@ -191,7 +191,8 @@ class LoadImages:
         return self
 
     def __next__(self):
-        for i in range(30):
+        skipnum = 1800 # 这里没分钟识别一次 每秒30帧，故应当取30*60=1800
+        for i in range(skipnum):
             if self.count == self.nf:
                 raise StopIteration
             path = self.files[self.count]
@@ -211,7 +212,8 @@ class LoadImages:
                         ret_val, img0 = self.cap.read()
 
                 self.frame += 1
-                print(f'video {self.count + 1}/{self.nf} ({self.frame}/{self.frames}) {path}: ', end='')
+                # 更改了暂时不输出
+                # print(f'video {self.count + 1}/{self.nf} ({self.frame}/{self.frames}) {path}: ', end='')
 
             else:
                 # Read image
@@ -226,8 +228,10 @@ class LoadImages:
             # Convert
             img = img.transpose((2, 0, 1))[::-1]  # HWC to CHW, BGR to RGB
             img = np.ascontiguousarray(img)
-            if i == 29:
-                return path, img, img0, self.cap
+            # if i == 29:
+            # 更改到这里来输出
+        print(f'video {self.count+1}/{self.nf} ({self.frame}/{self.frames}) {path}: ', end='')
+        return path, img, img0, self.cap
 
     def new_video(self, path):
         self.frame = 0
